@@ -1554,6 +1554,10 @@ void guac_rdp_push_settings(guac_client* client,
         freerdp_settings_set_uint32(rdp_settings, FreeRDP_ColorDepth, RDP_GFX_REQUIRED_DEPTH);
         freerdp_settings_set_bool(rdp_settings, FreeRDP_SoftwareGdi, TRUE);
 
+        /* Enable H.264/AVC codec support */
+        freerdp_settings_set_bool(rdp_settings, FreeRDP_GfxH264, TRUE);
+        freerdp_settings_set_bool(rdp_settings, FreeRDP_GfxAVC444, TRUE);
+        freerdp_settings_set_bool(rdp_settings, FreeRDP_GfxAVC444v2, TRUE);
     }
 
     /* Set individual flags - some FreeRDP versions overwrite flags set by guac_rdp_get_performance_flags() above */
