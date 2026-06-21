@@ -173,9 +173,20 @@ void guac_rdp_disp_set_size(guac_rdp_disp* disp, guac_rdp_settings* settings,
     if (width  < GUAC_RDP_DISP_MIN_SIZE) width  = GUAC_RDP_DISP_MIN_SIZE;
     if (height < GUAC_RDP_DISP_MIN_SIZE) height = GUAC_RDP_DISP_MIN_SIZE;
 
-    /* Width must be even */
-    if (width % 2 == 1)
-        width -= 1;
+    /* Round both dimensions down to a multiple of 16. The RDP graphics
+     * pipeline encodes H.264 in 16x16 macroblocks, and when the negotiated
+     * display dimensions aren't mod-16 the server pads the encoded frame
+     * with all-zero YUV macroblocks. The chroma plane spans the boundary
+     * between real rows and padding rows, contaminating the bottom-most
+     * real chroma sample. After the client canvas bilinear-scales the
+     * decoded output, this contamination spreads into a saturated green
+     * band (YUV(0,0,0) -> RGB ~ #008700) along the bottom edge. Mod-2
+     * rounding is not enough -- the entire bottom 16-row macroblock
+     * strip is affected, not just the single odd row. The cost is up
+     * to 15px of unused canvas margin, which the user can eliminate by
+     * sizing their viewport so the requested height is already mod-16. */
+    width  -= width  % 16;
+    height -= height % 16;
 
     /* Store deferred size */
     disp->requested_width = width;
